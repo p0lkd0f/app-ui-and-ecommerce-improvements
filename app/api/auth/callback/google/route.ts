@@ -50,7 +50,16 @@ export async function GET(request: NextRequest) {
       } catch {}
     }
     const response = NextResponse.redirect(destination)
-    response.cookies.set('__Secure-better-auth.session_token', token, { httpOnly: true, secure: true, sameSite: 'lax', maxAge: 30 * 60, path: '/' })
+    // Better Auth reads the unprefixed cookie name by default. The previous callback
+    // wrote a second prefixed cookie, so the stale unprefixed cookie won during lookup.
+    response.cookies.set('better-auth.session_token', token, {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'lax',
+      maxAge: 30 * 60,
+      path: '/',
+    })
+    response.cookies.delete('__Secure-better-auth.session_token')
     response.cookies.delete('efoka_google_oauth_state')
     return response
   } catch (error) {
