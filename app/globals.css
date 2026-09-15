@@ -1,0 +1,196 @@
+@import 'tailwindcss';
+@import 'tw-animate-css';
+@import 'shadcn/tailwind.css';
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --color-foreground: var(--foreground);
+  --color-background: var(--background);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+  --animate-shimmer-slide: shimmer-slide var(--speed) ease-in-out infinite alternate;
+  --animate-spin-around: spin-around calc(var(--speed) * 2) infinite linear;
+  @keyframes shimmer-slide {
+  to {
+    transform: translate(calc(100cqw - 100%), 0);
+    }
+  }
+  @keyframes spin-around {
+  0% {
+    transform: translateZ(0) rotate(0);
+    }
+  15%, 35% {
+    transform: translateZ(0) rotate(90deg);
+    }
+  65%, 85% {
+    transform: translateZ(0) rotate(270deg);
+    }
+  100% {
+    transform: translateZ(0) rotate(360deg);
+    }
+  }
+  --animate-marquee: marquee var(--duration) infinite linear;
+  --animate-marquee-vertical: marquee-vertical var(--duration) linear infinite
+;
+  @keyframes marquee {
+  from {
+    transform: translateX(0);}
+  to {
+    transform: translateX(calc(-100% - var(--gap)));}}
+  @keyframes marquee-vertical {
+  from {
+    transform: translateY(0);}
+  to {
+    transform: translateY(calc(-100% - var(--gap)));}}}
+
+@keyframes efoka-sheen { from { transform: translateX(-120%); } to { transform: translateX(120%); } }
+@keyframes efoka-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
+.efoka-premium-card { position: relative; isolation: isolate; overflow: hidden; }
+.efoka-premium-card::after { content: ''; position: absolute; inset: 0; z-index: -1; pointer-events: none; background: linear-gradient(105deg, transparent 30%, rgba(255,255,255,.48) 48%, transparent 64%); transform: translateX(-120%); opacity: 0; transition: opacity .3s ease; }
+.efoka-premium-card:hover::after { animation: efoka-sheen 1.1s ease; opacity: 1; }
+.efoka-float { animation: efoka-float 5s ease-in-out infinite; }
+.globe-icon-rail { left: 0 !important; right: 0 !important; padding-inline: 0 !important; mask-image: linear-gradient(to right, transparent, black 1%, black 99%, transparent); } .globe-icon-rail > div { min-width: max-content; padding-inline: 0 !important; } .globe-icon-rail .animate-marquee { min-width: max-content; }
+.globe-platform-icon { display: grid; place-items: center; width: 50px; height: 50px; border: 1px solid rgba(214,245,156,.38); border-radius: 999px; background: rgba(10,51,42,.88); box-shadow: 0 8px 24px rgba(0,0,0,.18), inset 0 0 0 3px rgba(255,255,255,.04); transition: transform .25s ease, border-color .25s ease, background .25s ease; }
+.globe-platform-icon:hover { transform: translateY(-3px) scale(1.08); border-color: rgba(214,245,156,.82); background: rgba(23,91,73,.96); }
+.globe-platform-icon img { width: 29px; height: 29px; border-radius: 5px; object-fit: contain; }
+.capability-marquee { mask-image: linear-gradient(to right, transparent, black 6%, black 94%, transparent); }
+.capability-marquee-card { min-width: 210px; border: 1px solid #dfe9df; border-radius: 16px; background: rgba(255,255,255,.86); padding: 14px; box-shadow: 0 10px 26px rgba(29,77,47,.06); }
+.capability-marquee-card:hover { border-color: #9bc99b; background: #f7fcf4; }
+.whatsapp-phone { background-color: #102c33; }
+.whatsapp-header { border-radius: 15px 15px 8px 8px; background: #202f35; padding: 7px 9px; }
+.whatsapp-header [data-slot="avatar"] + div { gap: 1px; }
+.whatsapp-header [data-slot="avatar"] + div p:first-child { font-size: 12px; font-weight: 700; }
+.whatsapp-header [data-slot="avatar"] + div p:last-child { font-size: 10px; opacity: .62; }
+.whatsapp-thread { display: flex; flex-direction: column; gap: 4px; padding: 9px 6px 5px; background-color: #0b141a; background-image: linear-gradient(rgba(11,20,26,.58), rgba(11,20,26,.58)), url('https://ui.meta-cloud-api.site/wa-wallpaper.png'); background-repeat: repeat; background-size: auto, 360px auto; background-blend-mode: normal, soft-light; } .whatsapp-thread p:empty, .whatsapp-thread div:has(> p:empty), .whatsapp-thread div:has(> span:empty), .whatsapp-thread div:has(> textarea:empty) { display: none !important; } .whatsapp-thread .flex.flex-wrap, .whatsapp-thread > div:last-child, .whatsapp-thread button, .whatsapp-thread [role="button"], .whatsapp-thread div:has(> button), .whatsapp-thread div:has(> [role="button"]) { display: none !important; }
+.whatsapp-readonly-input { display: flex !important; position: relative; align-items: center; min-height: 34px; margin: 2px 2px 0; padding: 4px 44px 4px 38px !important; border-radius: 20px; background: #263b42 !important; color: rgba(255,255,255,.48); opacity: .92; pointer-events: none; } .whatsapp-readonly-input::before { content: '＋'; position: absolute; left: 11px; top: 5px; color: rgba(255,255,255,.7); font-size: 21px; line-height: 24px; } .whatsapp-readonly-input::after { content: '➤'; position: absolute; right: 8px; top: 4px; display: grid; place-items: center; width: 27px; height: 27px; border-radius: 50%; background: #c6f06e; color: #123d34; font-size: 14px; transform: rotate(-18deg); } .whatsapp-readonly-input > div { background: transparent !important; padding: 0 !important; } .whatsapp-readonly-input textarea { color: rgba(255,255,255,.72) !important; }
+.whatsapp-phone button, .whatsapp-phone [role="button"] { display: none !important; } .whatsapp-phone > a { display: none !important; } .whatsapp-composer::before { content: '＋'; } .whatsapp-composer::after { content: '➤'; }
+.whatsapp-phone .whatsapp-header [data-slot="avatar"] { flex: 0 0 auto; }
+.whatsapp-phone .whatsapp-header [data-slot="avatar-fallback"] { background: #c6f06e; color: #123d34; font-size: 11px; font-weight: 800; } .whatsapp-phone .fill-wa-bubble-incoming { fill: #202f35 !important; } .whatsapp-phone .fill-wa-bubble-outgoing { fill: #006b5b !important; } .whatsapp-phone .fill-wa-always-black { display: none; }
+.whatsapp-date { align-self: center; border-radius: 999px; background: rgba(32,47,53,.9); padding: 5px 10px; color: rgba(255,255,255,.45); font-size: 9px; font-weight: 700; letter-spacing: .14em; }
+.whatsapp-product-card { display: flex; align-items: center; gap: 10px; margin: 2px auto 0; width: min(92%, 360px); border-radius: 14px; border: 1px solid rgba(198,240,110,.16); background: rgba(0,107,91,.72); padding: 10px; }
+.whatsapp-composer { display: flex !important; position: relative; align-items: center; min-height: 34px; margin: 2px 2px 0; padding: 4px 44px 4px 38px; border-radius: 20px; background: #263b42; color: rgba(255,255,255,.48); } .whatsapp-composer textarea { display: block !important; min-height: 24px; color: rgba(255,255,255,.72) !important; } .whatsapp-composer textarea::placeholder { color: rgba(255,255,255,.45); } .whatsapp-thread div:has(> textarea[placeholder="Type a message"]) + *, .whatsapp-thread div:has(.whatsapp-readonly-input) + * { display: none !important; } .whatsapp-thread > div:has(textarea[placeholder="Type a message"]) { display: flex !important; } .whatsapp-thread > div:has(textarea[placeholder="Type a message"]) + div { display: none !important; } .whatsapp-composer::before { content: '＋'; position: absolute; left: 11px; top: 7px; color: rgba(255,255,255,.7); font-size: 22px; line-height: 24px; } .whatsapp-composer::after { content: '➤'; position: absolute; right: 8px; top: 6px; display: grid; place-items: center; width: 28px; height: 28px; border-radius: 50%; background: #c6f06e; color: #123d34; font-size: 15px; transform: rotate(-18deg); }
+
+@media (prefers-reduced-motion: reduce) { .efoka-premium-card::after, .efoka-float, .globe-icon-rail * { animation: none !important; transition: none !important; } }
+
+.dark {
+  color-scheme: dark;
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.205 0 0);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.205 0 0);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.922 0 0);
+  --primary-foreground: oklch(0.205 0 0);
+  --secondary: oklch(0.269 0 0);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.269 0 0);
+  --muted-foreground: oklch(0.708 0 0);
+  --accent: oklch(0.269 0 0);
+  --accent-foreground: oklch(0.985 0 0);
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.556 0 0);
+  --chart-1: oklch(0.87 0 0);
+  --chart-2: oklch(0.556 0 0);
+  --chart-3: oklch(0.439 0 0);
+  --chart-4: oklch(0.371 0 0);
+  --chart-5: oklch(0.269 0 0);
+  --sidebar: oklch(0.205 0 0);
+  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar-primary: oklch(0.488 0.243 264.376);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.269 0 0);
+  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: oklch(0.556 0 0);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not(.light) {
+    color-scheme: dark;
+    --background: oklch(0.145 0 0);
+    --foreground: oklch(0.985 0 0);
+    --card: oklch(0.205 0 0);
+    --card-foreground: oklch(0.985 0 0);
+    --popover: oklch(0.205 0 0);
+    --popover-foreground: oklch(0.985 0 0);
+    --primary: oklch(0.922 0 0);
+    --primary-foreground: oklch(0.205 0 0);
+    --secondary: oklch(0.269 0 0);
+    --secondary-foreground: oklch(0.985 0 0);
+    --muted: oklch(0.269 0 0);
+    --muted-foreground: oklch(0.708 0 0);
+    --accent: oklch(0.269 0 0);
+    --accent-foreground: oklch(0.985 0 0);
+    --destructive: oklch(0.704 0.191 22.216);
+    --border: oklch(1 0 0 / 10%);
+    --input: oklch(1 0 0 / 15%);
+    --ring: oklch(0.556 0 0);
+    --chart-1: oklch(0.87 0 0);
+    --chart-2: oklch(0.556 0 0);
+    --chart-3: oklch(0.439 0 0);
+    --chart-4: oklch(0.371 0 0);
+    --chart-5: oklch(0.269 0 0);
+    --sidebar: oklch(0.205 0 0);
+    --sidebar-foreground: oklch(0.985 0 0);
+    --sidebar-primary: oklch(0.488 0.243 264.376);
+    --sidebar-primary-foreground: oklch(0.985 0 0);
+    --sidebar-accent: oklch(0.269 0 0);
+    --sidebar-accent-foreground: oklch(0.985 0 0);
+    --sidebar-border: oklch(1 0 0 / 10%);
+    --sidebar-ring: oklch(0.556 0 0);
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "cv11", "ss01";
+  }
+  button, a, input, textarea, select {
+    @apply outline-offset-2;
+  }
+  button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible {
+    @apply outline-2 outline-offset-2 outline-[#4d8b61];
+  }
+}
