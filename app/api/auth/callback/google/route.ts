@@ -50,7 +50,7 @@ export async function GET(request: NextRequest) {
       } catch {}
     }
     const response = NextResponse.redirect(destination)
-    response.cookies.set('better-auth.session_token', token, { httpOnly: true, secure: true, sameSite: 'lax', maxAge: 30 * 60, path: '/' })
+    response.cookies.set('__Secure-better-auth.session_token', token, { httpOnly: true, secure: true, sameSite: 'lax', maxAge: 30 * 60, path: '/' })
     response.cookies.delete('efoka_google_oauth_state')
     return response
   } catch (error) {
