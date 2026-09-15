@@ -1,5 +1,6 @@
+import { auth } from '@/lib/auth'
 import { db } from '@/lib/db'
-import { session, user } from '@/lib/db/schema'
+import { user } from '@/lib/db/schema'
 import { OAuth2Client } from 'google-auth-library'
 import { eq } from 'drizzle-orm'
 import { NextRequest, NextResponse } from 'next/server'
@@ -37,9 +38,12 @@ export async function GET(request: NextRequest) {
       await db.update(user).set({ emailVerified: true, image: payload.picture || existingUser[0].image, updatedAt: new Date() }).where(eq(user.id, userId))
     }
 
-    const token = randomUUID() + randomUUID()
-    const expiresAt = new Date(Date.now() + 30 * 60 * 1000)
-    await db.insert(session).values({ id: randomUUID(), token, userId, expiresAt, ipAddress: request.headers.get('x-forwarded-for'), userAgent: request.headers.get('user-agent') })
+    // Use Better Auth's own adapter so the token format, expiry, and lookup
+    // semantics exactly match auth.api.getSession on protected server routes.
+    const authContext = await auth.$context
+    const createdSession = await authContext.internalAdapter.createSession(userId)
+    const token = createdSession.token
+    const expiresAt = createdSession.expiresAt
 
     const destination = new URL('/dashboard', origin)
     const callbackURL = request.cookies.get('efoka_google_oauth_state')?.value
