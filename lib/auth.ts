@@ -7,12 +7,8 @@ const originFromEnv = (value?: string) => {
   if (!value) return undefined
   return value.startsWith('http://') || value.startsWith('https://') ? value.replace(/\/$/, '') : `https://${value}`
 }
-const baseURL = originFromEnv(process.env.APP_URL) ??
-  originFromEnv(process.env.BETTER_AUTH_URL) ??
-  originFromEnv(process.env.VERCEL_PROJECT_PRODUCTION_URL) ??
-  originFromEnv(process.env.VERCEL_URL) ??
-  originFromEnv(process.env.V0_RUNTIME_URL) ??
-  'http://localhost:3000'
+const temporaryPublicOrigin = 'https://v0-app-ui-and-ecommerce-improvements.vercel.app'
+const baseURL = temporaryPublicOrigin
 
 const trustedOrigins = Array.from(new Set([
   'https://app-ui-and-ecommerce-improvements.vercel.app',
