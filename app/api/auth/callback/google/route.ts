@@ -50,17 +50,20 @@ export async function GET(request: NextRequest) {
       } catch {}
     }
     const response = NextResponse.redirect(destination)
-    // Better Auth reads the unprefixed cookie name by default. The previous callback
-    // wrote a second prefixed cookie, so the stale unprefixed cookie won during lookup.
-    response.cookies.set('better-auth.session_token', token, {
+    const cookieOptions = {
       httpOnly: true,
       secure: true,
-      sameSite: 'lax',
+      sameSite: 'lax' as const,
       maxAge: 30 * 60,
       path: '/',
-    })
-    response.cookies.delete('__Secure-better-auth.session_token')
-    response.cookies.delete('efoka_google_oauth_state')
+    }
+
+    // Better Auth chooses the secure-prefixed name in HTTPS deployments. Keep both
+    // names synchronized for one transition window so an older cookie can never win
+    // with an expired or unrelated session token.
+    response.cookies.set('__Secure-better-auth.session_token', token, cookieOptions)
+    response.cookies.set('better-auth.session_token', token, cookieOptions)
+    response.cookies.set('efoka_google_oauth_state', '', { ...cookieOptions, maxAge: 0 })
     return response
   } catch (error) {
     console.error('[v0] Google OAuth callback failed', error)
