@@ -1,5 +1,7 @@
 import { auth } from '@/lib/auth'
 import { db } from '@/lib/db'
+import { getCookies } from 'better-auth/cookies'
+import { makeSignature } from 'better-auth/crypto'
 import { user } from '@/lib/db/schema'
 import { OAuth2Client } from 'google-auth-library'
 import { eq } from 'drizzle-orm'
@@ -54,20 +56,21 @@ export async function GET(request: NextRequest) {
       } catch {}
     }
     const response = NextResponse.redirect(destination)
-    const cookieOptions = {
-      httpOnly: true,
-      secure: true,
-      sameSite: 'lax' as const,
-      maxAge: 30 * 60,
-      path: '/',
-    }
+    const sessionCookie = getCookies(auth.options).sessionToken
+    const secret = process.env.BETTER_AUTH_SECRET
+    if (!secret) throw new Error('BETTER_AUTH_SECRET is not configured')
 
-    // Better Auth chooses the secure-prefixed name in HTTPS deployments. Keep both
-    // names synchronized for one transition window so an older cookie can never win
-    // with an expired or unrelated session token.
-    response.cookies.set('__Secure-better-auth.session_token', token, cookieOptions)
-    response.cookies.set('better-auth.session_token', token, cookieOptions)
-    response.cookies.set('efoka_google_oauth_state', '', { ...cookieOptions, maxAge: 0 })
+    // Better Auth signs the session cookie. A raw database token is intentionally
+    // rejected by getSession, which was the cause of the dashboard 307 redirect.
+    const signature = await makeSignature(token, secret)
+    response.cookies.set(sessionCookie.name, encodeURIComponent(`${token}.${signature}`), {
+      ...sessionCookie.attributes,
+      sameSite: 'lax',
+      maxAge: 30 * 60,
+    })
+    response.cookies.set('better-auth.session_token', '', { maxAge: 0, path: '/' })
+    response.cookies.set('__Secure-better-auth.session_token', '', { maxAge: 0, path: '/' })
+    response.cookies.set('efoka_google_oauth_state', '', { maxAge: 0, path: '/' })
     return response
   } catch (error) {
     console.error('[v0] Google OAuth callback failed', error)
