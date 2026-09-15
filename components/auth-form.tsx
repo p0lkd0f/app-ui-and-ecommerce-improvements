@@ -62,7 +62,7 @@ export function AuthForm({ mode }: { mode: 'sign-in' | 'sign-up' }) {
     setError('')
     const result = await authClient.signIn.social({
       provider: 'google',
-      callbackURL: `${window.location.origin}/dashboard`,
+      callbackURL: '/dashboard',
     })
     if (result.error) {
       setPending(false)

@@ -16,6 +16,7 @@ const baseURL = originFromEnv(process.env.APP_URL) ??
 
 const trustedOrigins = Array.from(new Set([
   'https://app-ui-and-ecommerce-improvements.vercel.app',
+  'https://v0-app-ui-and-ecommerce-improvements.vercel.app',
   ...(process.env.NODE_ENV === 'development' ? [
     'http://localhost:3000',
     'http://127.0.0.1:3000',
