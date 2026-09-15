@@ -7,15 +7,14 @@ const originFromEnv = (value?: string) => {
   if (!value) return undefined
   return value.startsWith('http://') || value.startsWith('https://') ? value.replace(/\/$/, '') : `https://${value}`
 }
-const baseURL = originFromEnv(process.env.BETTER_AUTH_URL) ??
+const baseURL = originFromEnv(process.env.APP_URL) ??
+  originFromEnv(process.env.BETTER_AUTH_URL) ??
   originFromEnv(process.env.VERCEL_PROJECT_PRODUCTION_URL) ??
   originFromEnv(process.env.VERCEL_URL) ??
   originFromEnv(process.env.V0_RUNTIME_URL) ??
   'http://localhost:3000'
 
 const trustedOrigins = Array.from(new Set([
-  'https://efoka.ma',
-  'https://www.efoka.ma',
   'https://app-ui-and-ecommerce-improvements.vercel.app',
   ...(process.env.NODE_ENV === 'development' ? [
     'http://localhost:3000',
