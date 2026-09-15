@@ -56,6 +56,12 @@ export const auth = betterAuth({
       clientSecret: process.env.GOOGLE_CLIENT_SECRET ?? '',
     },
   },
+  account: {
+    accountLinking: {
+      enabled: true,
+      trustedProviders: ['google'],
+    },
+  },
   trustedOrigins,
   session: { expiresIn: 60 * 30, updateAge: 60 * 5 },
   ...(process.env.NODE_ENV === 'development' ? {
