@@ -1,20 +1,21 @@
 'use client'
 
-import { MouseEvent } from 'react'
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
-import { ArrowRight } from 'lucide-react'
+import { ArrowRight, Loader2 } from 'lucide-react'
 import { useSession } from '@/lib/auth-client'
 
 export function GetStartedLink({ className = '', children = 'Get started' }: { className?: string; children?: React.ReactNode }) {
-  const router = useRouter()
-  const { data: session } = useSession()
+  const { data: session, isPending } = useSession()
+  const [href, setHref] = useState('/sign-in')
 
-  function handleClick(event: MouseEvent<HTMLAnchorElement>) {
-    if (!session?.user) return
-    event.preventDefault()
-    router.push('/dashboard')
+  useEffect(() => {
+    if (!isPending) setHref(session?.user ? '/dashboard' : '/sign-in')
+  }, [isPending, session?.user])
+
+  if (isPending) {
+    return <span className={`${className} inline-flex items-center justify-center`} aria-live="polite"><Loader2 size={15} className="animate-spin" aria-label="Checking session" /></span>
   }
 
-  return <Link href="/sign-in" onClick={handleClick} className={`${className} relative z-30 inline-flex items-center`} aria-label={session?.user ? 'Open dashboard' : 'Get started'}>{children}<ArrowRight size={15} aria-hidden="true" /></Link>
+  return <Link href={href} className={`${className} relative z-30 inline-flex items-center`} aria-label={href === '/dashboard' ? 'Open dashboard' : 'Get started'}>{children}<ArrowRight size={15} aria-hidden="true" /></Link>
 }
