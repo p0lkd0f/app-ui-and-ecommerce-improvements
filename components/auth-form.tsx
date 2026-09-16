@@ -60,7 +60,16 @@ export function AuthForm({ mode }: { mode: 'sign-in' | 'sign-up' }) {
   async function continueWithGoogle() {
     setPending(true)
     setError('')
-    window.location.assign('/api/auth/google/start?callbackURL=%2Fdashboard')
+    const result = await authClient.signIn.social({
+      provider: 'google',
+      callbackURL: `${window.location.origin}/dashboard`,
+    })
+    if (result.error) {
+      setPending(false)
+      setError(result.error.code === 'PROVIDER_NOT_FOUND'
+        ? 'Google sign-in is not configured for this deployment. Use email and password or configure a valid Google OAuth client.'
+        : 'Google sign-in is not available right now. Try email and password.')
+    }
   }
 
   return (
