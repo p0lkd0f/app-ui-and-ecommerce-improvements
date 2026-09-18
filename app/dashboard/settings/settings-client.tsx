@@ -9,30 +9,39 @@ export default function SettingsClient({ user }: { user: { name: string; email: 
   const [status, setStatus] = useState('')
   const [busy, setBusy] = useState(false)
   const [confirmation, setConfirmation] = useState('')
+  const [notifications, setNotifications] = useState(true)
 
   useEffect(() => {
-    void fetch('/api/profile', { cache: 'no-store' }).then(async (response) => {
-      if (!response.ok) return
-      const data = await response.json() as { profile?: { name?: string; phone?: string | null } }
-      setName(data.profile?.name ?? user.name)
-      setPhone(data.profile?.phone ?? '')
-    })
+    const controller = new AbortController()
+    void fetch('/api/profile', { cache: 'no-store', signal: controller.signal })
+      .then(async (response) => {
+        if (!response.ok) return
+        const data = await response.json() as { profile?: { name?: string; phone?: string | null } }
+        setName(data.profile?.name ?? user.name)
+        setPhone(data.profile?.phone ?? '')
+      })
+      .catch((error) => { if (!(error instanceof DOMException && error.name === 'AbortError')) setStatus('Could not load your profile.') })
+    return () => controller.abort()
   }, [user.name])
 
   const save = async () => {
+    if (!name.trim()) { setStatus('Name cannot be empty.'); return }
     setBusy(true); setStatus('')
-    const response = await fetch('/api/profile', { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name, phone }) })
-    setBusy(false)
-    setStatus(response.ok ? 'Profile saved securely.' : 'Could not save your profile.')
+    try {
+      const response = await fetch('/api/profile', { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: name.trim(), phone: phone.trim() }) })
+      setStatus(response.ok ? 'Profile saved securely.' : 'Could not save your profile.')
+    } catch { setStatus('Network error. Please try again.') } finally { setBusy(false) }
   }
 
   const deleteAccount = async () => {
-    if (confirmation !== 'DELETE') return
+    if (confirmation !== 'DELETE' || busy) return
     setBusy(true); setStatus('')
-    const response = await fetch('/api/account', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ confirmation }) })
-    if (response.ok) { window.location.assign('/sign-in'); return }
-    setBusy(false); setStatus('Account deletion failed. Nothing was removed.')
+    try {
+      const response = await fetch('/api/account', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ confirmation }) })
+      if (response.ok) { window.location.assign('/sign-in'); return }
+      setStatus('Account deletion failed. Nothing was removed.')
+    } catch { setStatus('Network error. Nothing was removed.') } finally { setBusy(false) }
   }
 
-  return <main className="min-h-screen bg-[#f5f7f4] px-5 py-8 text-[#17211b] sm:px-8"><div className="mx-auto max-w-3xl"><button onClick={() => window.location.assign('/dashboard')} className="mb-8 inline-flex items-center gap-2 text-[12px] font-semibold text-[#52745a]"><ArrowLeft size={15} /> Back to dashboard</button><div className="mb-8"><p className="text-[10px] font-bold uppercase tracking-[0.16em] text-[#6e9974]">Workspace settings</p><h1 className="mt-2 text-3xl font-semibold tracking-[-.05em]">Account and security</h1><p className="mt-2 text-sm text-[#78867d]">Manage your profile, connected data permissions, and account lifecycle.</p></div><section className="rounded-2xl border border-[#e3e9e2] bg-white p-6 shadow-sm"><div className="mb-5"><h2 className="text-base font-semibold">Profile</h2><p className="mt-1 text-xs text-[#89948c]">Used for reports, support routing, and workspace identity.</p></div><div className="grid gap-4 sm:grid-cols-2"><label className="text-xs font-semibold text-[#536359]">Name<input value={name} onChange={(event) => setName(event.target.value)} maxLength={120} className="mt-2 w-full rounded-xl border border-[#dfe7df] px-3 py-3 text-sm outline-none focus:border-[#5b8c63]" /></label><label className="text-xs font-semibold text-[#536359]">Email<input value={user.email} readOnly className="mt-2 w-full rounded-xl border border-[#edf0eb] bg-[#f7f9f6] px-3 py-3 text-sm text-[#89948c]" /></label><label className="text-xs font-semibold text-[#536359] sm:col-span-2">Phone<input value={phone} onChange={(event) => setPhone(event.target.value)} maxLength={32} placeholder="Optional" className="mt-2 w-full rounded-xl border border-[#dfe7df] px-3 py-3 text-sm outline-none focus:border-[#5b8c63]" /></label></div><button onClick={save} disabled={busy} className="mt-5 inline-flex items-center gap-2 rounded-xl bg-[#235337] px-4 py-2.5 text-xs font-semibold text-white disabled:opacity-60">{busy ? <Loader2 size={14} className="animate-spin" /> : <CheckCircle2 size={14} />} Save changes</button></section><section className="mt-5 rounded-2xl border border-[#f0c8bd] bg-[#fffaf8] p-6"><div className="flex items-start gap-3"><ShieldAlert size={19} className="mt-0.5 text-[#c76850]" /><div><h2 className="text-base font-semibold text-[#713d31]">Delete account</h2><p className="mt-1 text-xs leading-5 text-[#8c6258]">This permanently removes your profile, sessions, report preferences, and connected store records. Provider accounts are not deleted; disconnect them first if needed.</p></div></div><label className="mt-5 block text-xs font-semibold text-[#713d31]">Type DELETE to confirm<input value={confirmation} onChange={(event) => setConfirmation(event.target.value)} autoComplete="off" className="mt-2 w-full rounded-xl border border-[#efc8bd] bg-white px-3 py-3 text-sm outline-none focus:border-[#c76850]" /></label><button onClick={deleteAccount} disabled={busy || confirmation !== 'DELETE'} className="mt-4 inline-flex items-center gap-2 rounded-xl border border-[#c76850] px-4 py-2.5 text-xs font-semibold text-[#a04e3b] disabled:cursor-not-allowed disabled:opacity-40"><Trash2 size={14} /> Permanently delete account</button></section>{status && <p role="status" className="mt-4 text-xs font-semibold text-[#52745a]">{status}</p>}</div></main>
+  return <main className="min-h-screen bg-[#f5f7f4] px-5 py-8 text-[#17211b] sm:px-8"><div className="mx-auto max-w-3xl"><button type="button" onClick={() => window.location.assign('/dashboard')} className="mb-8 inline-flex items-center gap-2 text-sm text-[#637168] hover:text-[#173b2b]"><ArrowLeft className="size-4" />Back to workspace</button><div className="mb-8"><p className="text-[10px] font-bold uppercase tracking-[.18em] text-[#77915e]">Workspace settings</p><h1 className="mt-2 text-3xl font-semibold tracking-[-.04em] text-[#173b2b]">Your account</h1><p className="mt-2 text-sm text-[#718078]">Manage your profile and the way Efoka keeps you informed.</p></div>{status && <p role="status" className="mb-5 rounded-xl border border-[#dfe9df] bg-white p-3 text-sm text-[#53635a]">{status}</p>}<section className="rounded-3xl border border-[#e2e9e2] bg-white p-6 shadow-[0_8px_28px_rgba(30,73,43,.04)] sm:p-8"><h2 className="font-semibold text-[#173b2b]">Profile</h2><p className="mt-1 text-sm text-[#829087]">Visible to your team members.</p><div className="mt-6 grid gap-5 sm:grid-cols-2"><label className="text-sm"><span className="mb-2 block font-medium">Full name</span><input value={name} onChange={(event) => setName(event.target.value)} className="w-full rounded-xl border border-[#dfe9df] px-3 py-2.5 outline-none focus:border-[#77a94b]" /></label><label className="text-sm"><span className="mb-2 block font-medium">Phone</span><input value={phone} onChange={(event) => setPhone(event.target.value)} placeholder="Optional" className="w-full rounded-xl border border-[#dfe9df] px-3 py-2.5 outline-none focus:border-[#77a94b]" /></label></div><label className="mt-5 block text-sm"><span className="mb-2 block font-medium">Email</span><input value={user.email} disabled className="w-full rounded-xl border border-[#e9eee8] bg-[#f6f8f5] px-3 py-2.5 text-[#829087]" /></label><button type="button" onClick={save} disabled={busy} className="mt-6 inline-flex items-center gap-2 rounded-xl bg-[#173b2b] px-4 py-2.5 text-sm font-semibold text-white disabled:opacity-50">{busy ? <Loader2 className="size-4 animate-spin" /> : <CheckCircle2 className="size-4" />}Save changes</button></section><section className="mt-5 rounded-3xl border border-[#e2e9e2] bg-white p-6 sm:p-8"><div className="flex items-center justify-between gap-4"><div><h2 className="font-semibold text-[#173b2b]">Notifications</h2><p className="mt-1 text-sm text-[#829087]">Receive operational alerts by email.</p></div><button type="button" role="switch" aria-checked={notifications} onClick={() => setNotifications((value) => !value)} className={`relative h-6 w-11 rounded-full transition ${notifications ? 'bg-[#77a94b]' : 'bg-[#cbd5cc]'}`}><span className={`absolute top-1 size-4 rounded-full bg-white transition ${notifications ? 'left-6' : 'left-1'}`} /></button></div></section><section className="mt-5 rounded-3xl border border-[#f0d5ca] bg-[#fffaf7] p-6 sm:p-8"><div className="flex gap-3"><ShieldAlert className="mt-0.5 size-5 text-[#b65b3c]" /><div><h2 className="font-semibold text-[#7f3b27]">Delete account</h2><p className="mt-1 text-sm leading-6 text-[#9b624e]">This permanently removes your account and connected workspace data.</p><input value={confirmation} onChange={(event) => setConfirmation(event.target.value)} placeholder="Type DELETE to confirm" className="mt-4 w-full rounded-xl border border-[#ebcbbd] bg-white px-3 py-2.5 text-sm outline-none focus:border-[#b65b3c] sm:max-w-xs" /><button type="button" onClick={deleteAccount} disabled={busy || confirmation !== 'DELETE'} className="mt-4 flex items-center gap-2 rounded-xl bg-[#a34d31] px-4 py-2.5 text-sm font-semibold text-white disabled:opacity-40"><Trash2 className="size-4" />Delete account</button></div></div></section></div></main>
 }
